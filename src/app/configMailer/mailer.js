@@ -1,8 +1,8 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 exports.sendEmail = async function (user, subject, content) {
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: "Gmail",
     auth: {
       user: process.env.GOOGLE_USER,
       pass: process.env.GOOGLE_PASSWORD,
@@ -13,7 +13,7 @@ exports.sendEmail = async function (user, subject, content) {
     from: process.env.GOOGLE_USER,
     to: user.email,
     subject: subject,
-    text: 'You received message from ' + process.env.GOOGLE_USER,
+    text: "You received message from " + process.env.GOOGLE_USER,
     html: `<h3>Hello ${user.username}</h3>
     <p>You received message from ${process.env.GOOGLE_USER} with: </p>
     <p>Username: ${user.username}</p>
@@ -21,8 +21,15 @@ exports.sendEmail = async function (user, subject, content) {
     ${content}`,
   };
 
-  transporter.sendMail(config, (err, info) => {
-    if (err) console.log(err);
-    console.log("Message send: ", info);
-  })
+  await new Promise((resolve, reject) => {
+    transporter.sendMail(config, (err, info) => {
+      if (err) {
+        console.log(err);
+        reject(err);
+      } else {
+        console.log("Message send: ", info);
+        resolve(info);
+      }
+    });
+  });
 };
