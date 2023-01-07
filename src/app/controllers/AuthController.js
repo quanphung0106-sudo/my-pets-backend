@@ -139,7 +139,7 @@ const userRegister = async (req, res) => {
     });
     await newUser.save();
     await newToken.save();
-    sendEmail(
+    await sendEmail(
       newUser,
       'Welcome to my website!!',
       `
