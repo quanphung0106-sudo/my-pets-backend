@@ -105,8 +105,8 @@ const userLogin = async (req, res) => {
       res.cookie('refresh_token', refreshToken, {
         httpOnly: false,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        sameSite: 'strict',
-        secure: false,
+        sameSite: 'none',
+        secure: true,
         path: '/',
       });
       console.log('user login', { user, newToken });
