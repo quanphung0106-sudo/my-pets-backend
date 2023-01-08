@@ -103,7 +103,7 @@ const userLogin = async (req, res) => {
       const { password, _id, activeAccount, ...others } = user._doc;
 
       res.cookie('refresh_token', refreshToken, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         sameSite: 'strict',
         secure: false,
