@@ -1,10 +1,10 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { sendEmail } = require('../configMailer/mailer');
-const Token = require('../models/Token');
-const User = require('../models/User');
-const SERVER_ENDPOINT = process.env.SERVER_ENDPOINT || 'http://localhost:8808';
-const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || 'http://localhost:3002';
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { sendEmail } = require("../configMailer/mailer");
+const Token = require("../models/Token");
+const User = require("../models/User");
+const SERVER_ENDPOINT = process.env.SERVER_ENDPOINT || "http://localhost:8808";
+const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "http://localhost:3002";
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -14,8 +14,8 @@ const generateAccessToken = (user) => {
     },
     process.env.JWT,
     {
-      expiresIn: '1d',
-    },
+      expiresIn: "1d",
+    }
   );
 };
 
@@ -27,8 +27,8 @@ const generateRefreshToken = (user) => {
     },
     process.env.JWT_REFRESH_TOKEN,
     {
-      expiresIn: '7d',
-    },
+      expiresIn: "7d",
+    }
   );
 };
 
@@ -38,45 +38,50 @@ const refreshToken = async (req, res) => {
     // check refreshToken cookies === refreshToken cookie db
     const refreshToken = req.cookies.refresh_token;
 
-    console.log('refreshToken from request:', refreshToken);
+    console.log("refreshToken from request:", refreshToken);
 
-    if (!refreshToken) return res.status(404).json('Token is not exist.');
+    if (!refreshToken) return res.status(404).json("Token is not exist.");
 
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, async (err, user) => {
-      if (!user) return res.status(403).json(err);
-      if (user.id) {
-        const tokens = await Token.find({ userId: user.id });
-        const isCheckToken = tokens.some((token) => {
-          return token.refreshToken === refreshToken;
-        });
+    jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_TOKEN,
+      async (err, user) => {
+        if (!user) return res.status(403).json(err);
+        if (user.id) {
+          const tokens = await Token.find({ userId: user.id });
+          const isCheckToken = tokens.some((token) => {
+            return token.refreshToken === refreshToken;
+          });
 
-        if (!isCheckToken) return res.status(403).json({ msg: 'Refresh token is not valid!' });
+          if (!isCheckToken)
+            return res.status(403).json({ msg: "Refresh token is not valid!" });
 
-        const newAccessToken = generateAccessToken(user);
-        const newRefreshToken = generateRefreshToken(user);
+          const newAccessToken = generateAccessToken(user);
+          const newRefreshToken = generateRefreshToken(user);
 
-        const newToken = new Token({
-          userId: user.id,
-          refreshToken: newRefreshToken,
-        });
-        await newToken.save();
+          const newToken = new Token({
+            userId: user.id,
+            refreshToken: newRefreshToken,
+          });
+          await newToken.save();
 
-        res.cookie('refresh_token', newRefreshToken, {
-          httpOnly: true,
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          sameSite: 'strict',
-          secure: false,
-          path: '/',
-        });
+          res.cookie("refresh_token", newRefreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            sameSite: "strict",
+            secure: false,
+            path: "/",
+          });
 
-        console.log('refresh token:', { newRefreshToken, newAccessToken });
+          console.log("refresh token:", { newRefreshToken, newAccessToken });
 
-        return res.status(200).json({
-          newRefreshToken: newRefreshToken,
-          newAccessToken: newAccessToken,
-        });
+          return res.status(200).json({
+            newRefreshToken: newRefreshToken,
+            newAccessToken: newAccessToken,
+          });
+        }
       }
-    });
+    );
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
@@ -87,11 +92,15 @@ const refreshToken = async (req, res) => {
 const userLogin = async (req, res) => {
   try {
     const user = await User.findOne({ username: req.body.username });
-    if (user === null) return res.status(404).json('Account does not exist');
+    if (user === null) return res.status(404).json("Account does not exist");
     if (user) {
-      const validPassword = await bcrypt.compare(req.body.password, user.password);
-      if (user.activeAccount === false) return res.status(404).json('Please active your account.');
-      if (!validPassword) return res.status(404).json('Wrong password!');
+      const validPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+      if (user.activeAccount === false)
+        return res.status(404).json("Please active your account.");
+      if (!validPassword) return res.status(404).json("Wrong password!");
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken(user);
       const newToken = await new Token({
@@ -102,14 +111,14 @@ const userLogin = async (req, res) => {
 
       const { password, _id, activeAccount, ...others } = user._doc;
 
-      res.cookie('refresh_token', refreshToken, {
+      res.cookie("refresh_token", refreshToken, {
         httpOnly: false,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        sameSite: 'none',
+        sameSite: "lax",
         secure: true,
-        path: '/',
+        path: "https://my-pets-frontend.vercel.app/",
       });
-      console.log('user login', { user, newToken });
+      console.log("user login", { user, newToken });
       return res.status(200).json({ ...others, accessToken });
     }
   } catch (err) {
@@ -126,7 +135,10 @@ const userRegister = async (req, res) => {
     console.log({ usernameDB, emailDB });
     const saltRounds = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(req.body.password, saltRounds);
-    if (usernameDB || emailDB) return res.status(404).json('Username or Email exists. Please try another!');
+    if (usernameDB || emailDB)
+      return res
+        .status(404)
+        .json("Username or Email exists. Please try another!");
     const newUser = await new User({
       username: req.body.username,
       email: req.body.email,
@@ -141,11 +153,11 @@ const userRegister = async (req, res) => {
     await newToken.save();
     await sendEmail(
       newUser,
-      'Welcome to my website!!',
+      "Welcome to my website!!",
       `
       <h1>Please click this link to active your account!</h1>
       <a href="${CLIENT_ENDPOINT}/active-account/?token=${newToken.activateToken}">Active your account</a>
-      `,
+      `
     );
     const { isAdmin, activeAccount, password, ...others } = newUser._doc;
     return res.status(200).json({ ...others });
@@ -164,11 +176,11 @@ const activeAccount = async (req, res) => {
         { _id: token.userId },
         {
           activeAccount: true,
-        },
+        }
       );
-      res.status(200).json('Your account has been activated.');
+      res.status(200).json("Your account has been activated.");
     } else {
-      res.status(404).json('Something wrong happen!');
+      res.status(404).json("Something wrong happen!");
     }
   } catch (err) {
     res.status(500).json(err);
@@ -178,8 +190,8 @@ const activeAccount = async (req, res) => {
 //[POST]: /api/auth/logout
 const logout = async (req, res) => {
   try {
-    res.clearCookie('refresh_token', { path: '/' });
-    return res.status(200).json({ msg: 'Logout success' });
+    res.clearCookie("refresh_token", { path: "/" });
+    return res.status(200).json({ msg: "Logout success" });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -197,7 +209,7 @@ const getToken = async (req, res) => {
 const deleteTokens = async (req, res) => {
   try {
     await Token.remove();
-    res.status(200).json('All tokens have been deleted.');
+    res.status(200).json("All tokens have been deleted.");
   } catch (err) {
     res.status(500).json(err);
   }
