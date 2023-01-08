@@ -112,11 +112,11 @@ const userLogin = async (req, res) => {
       const { password, _id, activeAccount, ...others } = user._doc;
 
       res.cookie("refresh_token", refreshToken, {
-        httpOnly: false,
+        httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         sameSite: "strict",
         secure: true,
-        path: "https://my-pets-frontend.vercel.app/",
+        path: "/accounts",
       });
       console.log("user login", { user, newToken });
       return res.status(200).json({ ...others, accessToken });
