@@ -114,7 +114,7 @@ const userLogin = async (req, res) => {
       res.cookie("refresh_token", refreshToken, {
         httpOnly: false,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        sameSite: "lax",
+        sameSite: "strict",
         secure: true,
         path: "https://my-pets-frontend.vercel.app/",
       });
