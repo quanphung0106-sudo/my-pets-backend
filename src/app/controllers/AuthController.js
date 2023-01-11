@@ -66,10 +66,10 @@ const refreshToken = async (req, res) => {
           await newToken.save();
 
           res.cookie("refresh_token", newRefreshToken, {
-            httpOnly: true,
+            // httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             sameSite: "strict",
-            secure: false,
+            secure: true,
             path: "/",
           });
 
@@ -109,7 +109,7 @@ const userLogin = async (req, res) => {
       });
       await newToken.save();
 
-      const { password, _id, activeAccount, ...others } = user._doc;
+      const { password, activeAccount, ...others } = user._doc;
 
       res.cookie("refresh_token", refreshToken, {
         // httpOnly: true,

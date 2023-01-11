@@ -1,4 +1,5 @@
-const Order = require('../models/Order');
+const Order = require("../models/Order");
+const User = require("../models/User");
 
 //create an order
 //[POST]: /api/item/
@@ -26,8 +27,20 @@ const getOrders = async (req, res) => {
 //[GET]: /api/orders/:id
 const getOrderById = async (req, res) => {
   try {
-    const orders = await Order.findById({ _id: req.params.id });
-    res.status(200).json(orders);
+    const order = await Order.findById({ _id: req.params.id });
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+//get all user's orders by userId
+//[GET]: /api/order/:userId
+const getOrderByUserId = async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.params.userId);
+    const userOrders = await Order.find({ userId: currentUser._id });
+    res.status(200).json(userOrders);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -38,7 +51,7 @@ const getOrderById = async (req, res) => {
 const deleteAllOrders = async (req, res) => {
   try {
     const orders = await Order.remove();
-    res.status(200).json('Deleted all orders');
+    res.status(200).json("Deleted all orders");
   } catch (err) {
     res.status(500).json(err);
   }
@@ -48,5 +61,6 @@ module.exports = {
   createOrder,
   getOrders,
   getOrderById,
+  getOrderByUserId,
   deleteAllOrders,
 };
