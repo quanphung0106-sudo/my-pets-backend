@@ -6,9 +6,9 @@ const User = require("../models/User");
 const createOrder = async (req, res) => {
   try {
     const order = await Order.create(req.body);
-    res.status(201).json(order);
+    return res.status(201).json(order);
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
 };
 
@@ -17,9 +17,9 @@ const createOrder = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find();
-    res.status(200).json(orders);
+    return res.status(200).json(orders);
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
 };
 
@@ -28,21 +28,26 @@ const getOrders = async (req, res) => {
 const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById({ _id: req.params.id });
-    res.status(200).json(order);
+    return res.status(200).json(order);
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
 };
 
 //get all user's orders by userId
-//[GET]: /api/order/:userId
+//[GET]: /api/order/user/:userId
 const getOrderByUserId = async (req, res) => {
   try {
-    const currentUser = await User.findById(req.params.userId);
+    const currentUser = await User.findById({ _id: req.params.id });
     const userOrders = await Order.find({ userId: currentUser._id });
-    res.status(200).json(userOrders);
+
+    if (userOrders) {
+      return res.status(200).json(userOrders);
+    } else {
+      return res.status(500).json({ msg: '"Invalid"' });
+    }
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
 };
 
@@ -51,9 +56,9 @@ const getOrderByUserId = async (req, res) => {
 const deleteAllOrders = async (req, res) => {
   try {
     const orders = await Order.remove();
-    res.status(200).json("Deleted all orders");
+    return res.status(200).json("Deleted all orders");
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
 };
 
