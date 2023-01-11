@@ -1,12 +1,12 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const helmet = require('helmet');
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
-const route = require('./src/routes/index');
-const morgan = require('morgan');
+const route = require("./src/routes/index");
+const morgan = require("morgan");
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ const port = process.env.PORT || 8801;
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
-    console.log('Connected to the MongoDB!');
+    console.log("Connected to the MongoDB!");
   })
   .catch((error) => {
     console.log(`Can not connect to database, ${error}`);
@@ -35,6 +35,18 @@ app.use(function (req, res, next) {
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, OPTIONS, DELETE"
+  );
+
+  //Preflight CORS handler
+  if (req.method === "OPTIONS") {
+    return res.status(200).json({
+      body: "OK",
+    });
+  }
+
   next();
 });
 
