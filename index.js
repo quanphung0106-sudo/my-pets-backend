@@ -25,7 +25,6 @@ mongoose
 app.use(express.json());
 app.use(helmet());
 app.use(cors({ credentials: true, origin: true }));
-app.use(cookieParser());
 app.use(morgan('short'));
 
 app.use(function (req, res, next) {

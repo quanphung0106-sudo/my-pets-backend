@@ -36,11 +36,11 @@ const generateRefreshToken = (user) => {
 const refreshToken = async (req, res) => {
   try {
     // check refreshToken cookies === refreshToken cookie db
-    const refreshToken = req.cookies.refresh_token;
+    const refreshToken = req.body.refreshToken;
 
     console.log("refreshToken from request:", refreshToken);
 
-    if (!refreshToken) return res.status(404).json("Token is not exist.");
+    if (!refreshToken) return res.status(401).json("You are not authenticated!");
 
     jwt.verify(
       refreshToken,
@@ -64,14 +64,6 @@ const refreshToken = async (req, res) => {
             refreshToken: newRefreshToken,
           });
           await newToken.save();
-
-          res.cookie("refresh_token", newRefreshToken, {
-            // httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            sameSite: "strict",
-            secure: true,
-            path: "/",
-          });
 
           console.log("refresh token:", { newRefreshToken, newAccessToken });
 
@@ -111,15 +103,8 @@ const userLogin = async (req, res) => {
 
       const { password, activeAccount, ...others } = user._doc;
 
-      res.cookie("refresh_token", refreshToken, {
-        // httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        sameSite: "strict",
-        secure: true,
-        path: "/",
-      });
-      console.log("user login", { user, newToken });
-      return res.status(200).json({ ...others, accessToken });
+      console.log("user login", { user, accessToken, refreshToken });
+      return res.status(200).json({ ...others, accessToken, refreshToken });
     }
   } catch (err) {
     return res.status(500).json(err);
@@ -190,7 +175,6 @@ const activeAccount = async (req, res) => {
 //[POST]: /api/auth/logout
 const logout = async (req, res) => {
   try {
-    res.clearCookie("refresh_token", { path: "/" });
     return res.status(200).json({ msg: "Logout success" });
   } catch (err) {
     res.status(500).json(err);
