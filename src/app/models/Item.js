@@ -26,6 +26,9 @@ const ItemSchema = new Schema(
       type: Number,
       default: 0,
     },
+    cheapestPrice: {
+      type: Number,
+    },
     typeOfOptions: {
       type: [
         {

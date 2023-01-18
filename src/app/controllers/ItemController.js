@@ -1,11 +1,11 @@
-const Item = require('../models/Item');
+const Item = require("../models/Item");
 
 //create an item
 //[POST]: /api/item/
 const createItem = async (req, res) => {
   try {
     const products = await Item.create(req.body);
-    console.log('created new item: ', products);
+    console.log("created new item: ", products);
     res.status(201).json(products);
   } catch (err) {
     res.status(500).json(err);
@@ -15,11 +15,20 @@ const createItem = async (req, res) => {
 //get all items
 //[GET]: /api/item/
 const getItems = async (req, res) => {
+  const { min, max, sort, ...others } = req.query;
+  console.log(sort);
   try {
-    const items = await Item.find();
-    res.status(200).json(items);
+    const items = await Item.find({
+      ...others,
+      cheapestPrice: { $gte: min | 1, $lte: max || 9999 },
+    }).sort({ cheapestPrice: sort === "highest" ? "descending" : "ascending" });
+    if (items.length === 0) {
+      return res.status(204).json("The item you looking for is not found.");
+    } else {
+      return res.status(200).json(items);
+    }
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
 };
 
@@ -29,7 +38,7 @@ const getItem = async (req, res) => {
   try {
     const items = await Item.findById({ _id: req.params.id });
     if (!items) {
-      res.status(404).json('Lỗi');
+      res.status(404).json("Lỗi");
     } else {
       res.status(200).json(items);
     }
@@ -49,7 +58,7 @@ const updateItem = async (req, res) => {
       },
       {
         new: true,
-      },
+      }
     );
     res.status(200).json(item);
   } catch (err) {
@@ -62,7 +71,7 @@ const updateItem = async (req, res) => {
 const deleteAllItems = async (req, res) => {
   try {
     const items = await Item.remove();
-    res.status(200).json('All item are deleted');
+    res.status(200).json("All item are deleted");
   } catch (err) {
     res.status(500).json(err);
   }
@@ -73,7 +82,7 @@ const deleteAllItems = async (req, res) => {
 const deleteItem = async (req, res) => {
   try {
     await Item.findByIdAndDelete(req.params.id);
-    res.status(200).json('The item is deleted');
+    res.status(200).json("The item is deleted");
   } catch (err) {
     res.status(500).json(err);
   }
