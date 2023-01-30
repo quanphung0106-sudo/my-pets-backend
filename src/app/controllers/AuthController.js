@@ -4,7 +4,7 @@ const { sendEmail } = require("../configMailer/mailer");
 const Token = require("../models/Token");
 const User = require("../models/User");
 const SERVER_ENDPOINT = process.env.SERVER_ENDPOINT || "http://localhost:8808";
-const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "http://localhost:3002";
+const CLIENT_ENDPOINT = "http://mypets.click";
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -40,7 +40,8 @@ const refreshToken = async (req, res) => {
 
     console.log("refreshToken from request:", refreshToken);
 
-    if (!refreshToken) return res.status(401).json("You are not authenticated!");
+    if (!refreshToken)
+      return res.status(401).json("You are not authenticated!");
 
     jwt.verify(
       refreshToken,
