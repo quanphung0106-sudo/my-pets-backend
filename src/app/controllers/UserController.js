@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const User = require("../models/User");
 
 //create an user
 //[POST]: /api/item/
@@ -14,9 +14,11 @@ const createUser = async (req, res) => {
 //get all users
 //[GET]: /api/item/
 const getAllUsers = async (req, res) => {
+  const totalData = await User.countDocuments();
+
   try {
-    const user = await User.find();
-    return res.status(200).json(user);
+    const users = await User.find();
+    return res.status(200).json({ users, totalData });
   } catch (err) {
     return res.status(500).json(err);
   }
@@ -27,7 +29,7 @@ const getAllUsers = async (req, res) => {
 const deleteAllUsers = async (req, res) => {
   try {
     const users = await User.remove();
-    return res.status(200).json('Deleted all users');
+    return res.status(200).json("Deleted all users");
   } catch (err) {
     return res.status(500).json(err);
   }
@@ -38,7 +40,7 @@ const deleteAllUsers = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
-    return res.status(200).json('The account has been deleted.');
+    return res.status(200).json("The account has been deleted.");
   } catch (err) {
     return res.status(500).json(err);
   }
@@ -48,5 +50,5 @@ module.exports = {
   createUser,
   getAllUsers,
   deleteAllUsers,
-  deleteUser
+  deleteUser,
 };

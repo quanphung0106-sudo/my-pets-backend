@@ -11,7 +11,7 @@ const ItemSchema = new Schema(
     desc: {
       type: String,
       required: true,
-      maxlength: 270,
+      maxlength: 400,
     },
     img: {
       type: String,
@@ -28,6 +28,7 @@ const ItemSchema = new Schema(
     },
     cheapestPrice: {
       type: Number,
+      default: 0,
     },
     typeOfOptions: {
       type: [
