@@ -4,7 +4,7 @@ const { sendEmail } = require("../configMailer/mailer");
 const Token = require("../models/Token");
 const User = require("../models/User");
 const SERVER_ENDPOINT = process.env.SERVER_ENDPOINT || "http://localhost:8808";
-const CLIENT_ENDPOINT = "http://mypets.click";
+const CLIENT_ENDPOINT = "http://3.99.213.246";
 
 const generateAccessToken = (user) => {
   return jwt.sign(
